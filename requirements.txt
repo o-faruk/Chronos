@@ -1,0 +1,6 @@
+sgp4>=2.27
+numpy>=2.0
+scipy>=1.13
+requests>=2.31
+pytest>=8.0
+boto3>=1.40

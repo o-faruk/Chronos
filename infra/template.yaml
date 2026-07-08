@@ -1,0 +1,191 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Chronos -- TLE ingestion, SGP4 propagation, and conjunction screening.
+  See docs/decisions.md for why SAM + this architecture (matches the
+  serverless pattern from the Recall project) and docs/validation.md for
+  the product decisions this implements (JSON API, custom-TLE injection,
+  run-over-run trend tracking).
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [x86_64]
+    Environment:
+      Variables:
+        CHRONOS_RUNS_TABLE: !Ref ChronosRunsTable
+        CHRONOS_CONJUNCTIONS_TABLE: !Ref ChronosConjunctionsTable
+        CHRONOS_PAIR_HISTORY_TABLE: !Ref ChronosPairHistoryTable
+        CHRONOS_CATALOG_BUCKET: !Ref ChronosCatalogBucket
+
+Parameters:
+  SpaceTrackUsernameParam:
+    Type: String
+    Default: /chronos/spacetrack/username
+    Description: >
+      SSM Parameter Store name (String) holding the Space-Track username.
+      Set the actual value out-of-band, e.g.:
+      aws ssm put-parameter --name /chronos/spacetrack/username --type String --value you@example.com
+  SpaceTrackPasswordParam:
+    Type: String
+    Default: /chronos/spacetrack/password
+    Description: >
+      SSM Parameter Store name (SecureString) holding the Space-Track password.
+      Set the actual value out-of-band, e.g.:
+      aws ssm put-parameter --name /chronos/spacetrack/password --type SecureString --value ...
+  ScreeningScheduleExpression:
+    Type: String
+    Default: rate(2 hours)
+    Description: >
+      EventBridge schedule for the full-catalog screening run. Default of
+      2h matches CelesTrak/Space-Track's own GP-data refresh cadence (no
+      point re-screening more often than the source elements change) and
+      comfortably beats SOCRATES' effective refresh rate at real catalog
+      scale (measured ~12h per run at full scale -- see docs/validation.md).
+
+Resources:
+
+  ChronosCatalogBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  ChronosRunsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - {AttributeName: run_id, AttributeType: S}
+      KeySchema:
+        - {AttributeName: run_id, KeyType: HASH}
+
+  ChronosConjunctionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - {AttributeName: run_id, AttributeType: S}
+        - {AttributeName: conjunction_id, AttributeType: S}
+      KeySchema:
+        - {AttributeName: run_id, KeyType: HASH}
+        - {AttributeName: conjunction_id, KeyType: RANGE}
+
+  ChronosPairHistoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - {AttributeName: pair_key, AttributeType: S}
+      KeySchema:
+        - {AttributeName: pair_key, KeyType: HASH}
+
+  ChronosHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: v1
+
+  # --- Scheduled full-catalog run (EventBridge, not synchronous) ---
+  # Timeout 600s: measured full-catalog run is ~3.2 min against the real
+  # ~32k-object catalog (docs/decisions.md); 600s leaves ~3x headroom
+  # without approaching Lambda's 900s hard ceiling.
+  ScheduledScreeningFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ..
+      Handler: api.handlers.scheduled_screening_handler
+      Timeout: 600
+      MemorySize: 2048
+      Environment:
+        Variables:
+          SPACETRACK_USERNAME_SSM_PARAM: !Ref SpaceTrackUsernameParam
+          SPACETRACK_PASSWORD_SSM_PARAM: !Ref SpaceTrackPasswordParam
+      Policies:
+        - DynamoDBCrudPolicy: {TableName: !Ref ChronosRunsTable}
+        - DynamoDBCrudPolicy: {TableName: !Ref ChronosConjunctionsTable}
+        - DynamoDBCrudPolicy: {TableName: !Ref ChronosPairHistoryTable}
+        - S3CrudPolicy: {BucketName: !Ref ChronosCatalogBucket}
+        - Statement:
+            - Effect: Allow
+              Action: ssm:GetParameter
+              Resource:
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SpaceTrackUsernameParam}
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SpaceTrackPasswordParam}
+      Events:
+        Schedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: !Ref ScreeningScheduleExpression
+            FlexibleTimeWindow: {Mode: 'OFF'}
+
+  # --- Read endpoints (fast, DynamoDB-only, no propagation) ---
+  GetConjunctionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ..
+      Handler: api.handlers.get_conjunctions_handler
+      Timeout: 10
+      MemorySize: 256
+      Policies:
+        - DynamoDBReadPolicy: {TableName: !Ref ChronosRunsTable}
+        - DynamoDBReadPolicy: {TableName: !Ref ChronosConjunctionsTable}
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChronosHttpApi
+            Path: /conjunctions
+            Method: GET
+
+  GetCatalogSnapshotFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ..
+      Handler: api.handlers.get_catalog_snapshot_handler
+      Timeout: 10
+      MemorySize: 512
+      Policies:
+        - S3ReadPolicy: {BucketName: !Ref ChronosCatalogBucket}
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChronosHttpApi
+            Path: /catalog-snapshot
+            Method: GET
+
+  # --- On-demand custom-TLE screening (the Phase 0 differentiator) ---
+  # Timeout 28s: API Gateway's Lambda-proxy integration has a hard,
+  # non-configurable 29s timeout -- see screen/targeted.py and
+  # docs/decisions.md. Setting the Lambda timeout just under that means a
+  # slow run fails with a clean Lambda timeout error instead of an opaque
+  # API Gateway 504.
+  ScreenCustomObjectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ..
+      Handler: api.handlers.screen_custom_object_handler
+      Timeout: 28
+      MemorySize: 2048
+      Policies:
+        - S3ReadPolicy: {BucketName: !Ref ChronosCatalogBucket}
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChronosHttpApi
+            Path: /screen
+            Method: POST
+
+Outputs:
+  ApiUrl:
+    Description: Base URL for the HTTP API
+    Value: !Sub https://${ChronosHttpApi}.execute-api.${AWS::Region}.amazonaws.com/v1
+  CatalogBucketName:
+    Value: !Ref ChronosCatalogBucket

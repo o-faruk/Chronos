@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#080b11;}
+  ::selection{background:#35c9d6;color:#05080d;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:#243040;border-radius:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  a{color:#35c9d6;text-decoration:none;} a:hover{color:#6fe3ea;}
+  @keyframes cblink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  @keyframes cpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,.55);}50%{box-shadow:0 0 0 5px rgba(255,68,68,0);}}
+</style>
+</helmet>
+<div style="height:100vh;display:flex;flex-direction:column;background:#080b11;color:#b8c4d4;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;overflow:hidden;">
+
+  <!-- ============ HEADER ============ -->
+  <div style="height:56px;flex:0 0 56px;display:flex;align-items:center;gap:22px;padding:0 18px;border-bottom:1px solid #1a2432;background:linear-gradient(180deg,#0d121b,#0a0e15);">
+    <div style="display:flex;align-items:center;gap:11px;">
+      <div style="width:26px;height:26px;border:1.5px solid #35c9d6;transform:rotate(45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(53,201,214,.35);">
+        <div style="width:7px;height:7px;background:#35c9d6;transform:rotate(0deg);"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;line-height:1;">
+        <span style="font-size:16px;font-weight:700;letter-spacing:4px;color:#e6edf6;">CHRONOS</span>
+        <span style="font-size:8px;letter-spacing:2.6px;color:#5f6b7d;margin-top:3px;">ORBITAL CONJUNCTION SCREENING</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:0;flex:1;height:36px;border:1px solid #17212f;border-radius:5px;background:#0b1019;overflow:hidden;">
+      <div style="display:flex;flex-direction:column;line-height:1;padding:0 16px;flex:1;">
+        <span style="font-size:8px;letter-spacing:1.4px;color:#5f6b7d;font-weight:600;">CATALOG</span>
+        <span style="font-size:13px;color:#e6edf6;font-weight:600;margin-top:3px;">{{ run.catalog }}</span>
+      </div>
+      <div style="width:1px;height:24px;background:#17212f;"></div>
+      <div style="display:flex;flex-direction:column;line-height:1;padding:0 16px;flex:1;">
+        <span style="font-size:8px;letter-spacing:1.4px;color:#5f6b7d;font-weight:600;">PAIRS SCREENED</span>
+        <span style="font-size:13px;color:#e6edf6;font-weight:600;margin-top:3px;">{{ run.pairs }}</span>
+      </div>
+      <div style="width:1px;height:24px;background:#17212f;"></div>
+      <div style="display:flex;flex-direction:column;line-height:1;padding:0 16px;flex:1;">
+        <span style="font-size:8px;letter-spacing:1.4px;color:#5f6b7d;font-weight:600;">WINDOW</span>
+        <span style="font-size:13px;color:#e6edf6;font-weight:600;margin-top:3px;">{{ run.window }}</span>
+      </div>
+      <div style="width:1px;height:24px;background:#17212f;"></div>
+      <div style="display:flex;flex-direction:column;line-height:1;padding:0 16px;flex:1;">
+        <span style="font-size:8px;letter-spacing:1.4px;color:#5f6b7d;font-weight:600;">RUN DURATION</span>
+        <span style="font-size:13px;color:#e6edf6;font-weight:600;margin-top:3px;">{{ run.duration }}</span>
+      </div>
+      <div style="width:1px;height:24px;background:#17212f;"></div>
+      <div style="display:flex;flex-direction:column;line-height:1;padding:0 16px;flex:1;">
+        <span style="font-size:8px;letter-spacing:1.4px;color:#5f6b7d;font-weight:600;">SOURCE</span>
+        <span style="font-size:13px;color:#35c9d6;font-weight:600;margin-top:3px;">SPACE-TRACK GP</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:18px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1;">
+        <span style="font-size:8px;letter-spacing:1.4px;color:#5f6b7d;font-weight:600;">UTC</span>
+        <span style="font-size:14px;color:#e6edf6;font-weight:600;margin-top:3px;letter-spacing:.5px;">{{ clock }}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1;">
+        <span style="font-size:8px;letter-spacing:1.4px;color:#5f6b7d;font-weight:600;">NEXT RUN</span>
+        <span style="font-size:14px;color:#35c9d6;font-weight:600;margin-top:3px;letter-spacing:.5px;">{{ nextRun }}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;padding:6px 11px;border:1px solid #1c3324;border-radius:4px;background:rgba(70,201,122,.06);">
+        <div style="width:7px;height:7px;border-radius:50%;background:#46c97a;animation:cblink 2s infinite;box-shadow:0 0 8px #46c97a;"></div>
+        <span style="font-size:11px;color:#46c97a;letter-spacing:1.5px;font-weight:600;">NOMINAL</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ BODY ============ -->
+  <div style="flex:1;display:flex;gap:10px;padding:10px;min-height:0;">
+
+    <!-- ---- LEFT RAIL ---- -->
+    <div style="width:262px;flex:0 0 262px;display:flex;flex-direction:column;gap:10px;min-height:0;">
+
+      <!-- screening run -->
+      <div style="background:#0d121b;border:1px solid #1a2432;border-radius:6px;padding:13px 14px;">
+        <div style="font-size:9px;letter-spacing:1.6px;color:#5f6b7d;text-transform:uppercase;font-weight:600;margin-bottom:11px;display:flex;justify-content:space-between;">
+          <span>SCREENING RUN</span><span style="color:#35c9d6;">{{ run.id }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#5f6b7d;">STARTED</span><span style="color:#c8d2e0;">{{ run.started }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#5f6b7d;">CADENCE</span><span style="color:#c8d2e0;">2H · CONTINUOUS</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#5f6b7d;">ALGO</span><span style="color:#c8d2e0;">SGP4 · cKDTree</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#5f6b7d;">CANDIDATES</span><span style="color:#c8d2e0;">{{ run.candidates }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#5f6b7d;">CONJUNCTIONS</span><span style="color:#e6edf6;font-weight:600;">{{ total }}</span></div>
+        </div>
+      </div>
+
+      <!-- severity distribution -->
+      <div style="background:#0d121b;border:1px solid #1a2432;border-radius:6px;padding:13px 14px;">
+        <div style="font-size:9px;letter-spacing:1.6px;color:#5f6b7d;text-transform:uppercase;font-weight:600;margin-bottom:12px;">SEVERITY · MISS-DISTANCE</div>
+        <div style="display:flex;flex-direction:column;gap:11px;">
+          <sc-for list="{{ severityBars }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#c8d2e0;letter-spacing:.5px;">
+                  <span style="width:8px;height:8px;border-radius:2px;background:{{ s.color }};"></span>{{ s.label }}
+                </span>
+                <span style="font-size:11px;color:#8b97a8;"><span style="color:#e6edf6;font-weight:600;">{{ s.count }}</span> · {{ s.thresh }}</span>
+              </div>
+              <div style="height:5px;background:#131a26;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:{{ s.pct }};background:{{ s.color }};border-radius:3px;"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- orbital regime -->
+      <div style="background:#0d121b;border:1px solid #1a2432;border-radius:6px;padding:13px 14px;">
+        <div style="font-size:9px;letter-spacing:1.6px;color:#5f6b7d;text-transform:uppercase;font-weight:600;margin-bottom:12px;">CATALOG BY REGIME</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <sc-for list="{{ regimeRows }}" as="r" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="width:34px;font-size:11px;color:#c8d2e0;font-weight:600;">{{ r.label }}</span>
+              <div style="flex:1;height:5px;background:#131a26;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:{{ r.pct }};background:#35c9d6;border-radius:3px;opacity:.75;"></div>
+              </div>
+              <span style="width:52px;text-align:right;font-size:11px;color:#8b97a8;">{{ r.count }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- object types legend -->
+      <div style="background:#0d121b;border:1px solid #1a2432;border-radius:6px;padding:13px 14px;">
+        <div style="font-size:9px;letter-spacing:1.6px;color:#5f6b7d;text-transform:uppercase;font-weight:600;margin-bottom:11px;">OBJECT CLASS</div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="display:flex;align-items:center;gap:9px;font-size:11px;color:#c8d2e0;"><span style="width:9px;height:9px;border-radius:50%;background:#35c9d6;box-shadow:0 0 6px rgba(53,201,214,.6);"></span>ACTIVE PAYLOAD<span style="margin-left:auto;color:#8b97a8;">{{ typeCounts.active }}</span></div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:11px;color:#c8d2e0;"><span style="width:9px;height:9px;border-radius:50%;background:#7d8aa5;"></span>DEBRIS<span style="margin-left:auto;color:#8b97a8;">{{ typeCounts.debris }}</span></div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:11px;color:#c8d2e0;"><span style="width:9px;height:9px;border-radius:50%;background:#b48ce0;"></span>ROCKET BODY<span style="margin-left:auto;color:#8b97a8;">{{ typeCounts.rocket }}</span></div>
+        </div>
+      </div>
+
+      <!-- run-over-run trend summary -- the Phase 0 differentiator vs.
+           SOCRATES (see docs/validation.md), computed per-conjunction
+           already, aggregated here for the first time -->
+      <div style="background:#0d121b;border:1px solid #1a2432;border-radius:6px;padding:13px 14px;">
+        <div style="font-size:9px;letter-spacing:1.6px;color:#5f6b7d;text-transform:uppercase;font-weight:600;margin-bottom:11px;">RUN-OVER-RUN TREND</div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="display:flex;align-items:center;gap:9px;font-size:11px;color:#c8d2e0;"><span style="width:9px;height:9px;border-radius:50%;background:#ff9633;"></span>CLOSING<span style="margin-left:auto;color:#8b97a8;">{{ trendCounts.closing }}</span></div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:11px;color:#c8d2e0;"><span style="width:9px;height:9px;border-radius:50%;background:#46c97a;"></span>OPENING<span style="margin-left:auto;color:#8b97a8;">{{ trendCounts.opening }}</span></div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:11px;color:#c8d2e0;"><span style="width:9px;height:9px;border-radius:50%;background:#35c9d6;"></span>NEW<span style="margin-left:auto;color:#8b97a8;">{{ trendCounts.new }}</span></div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:11px;color:#c8d2e0;"><span style="width:9px;height:9px;border-radius:50%;background:#7d8aa5;"></span>STABLE<span style="margin-left:auto;color:#8b97a8;">{{ trendCounts.stable }}</span></div>
+        </div>
+        <div style="font-size:8px;letter-spacing:.5px;color:#3d4756;margin-top:11px;line-height:1.4;">vs. previous screening run · closing = miss distance shrinking</div>
+      </div>
+    </div>
+
+    <!-- ---- CENTER ---- -->
+    <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0;">
+
+      <!-- globe canvas placeholder -->
+      <div style="flex:1;position:relative;background:radial-gradient(circle at 50% 46%,#0c1420,#080d15 70%,#060a11);border:1px solid #1a2432;border-radius:6px;overflow:hidden;min-height:0;">
+
+        <!-- HUD corners -->
+        <div style="position:absolute;top:10px;left:10px;width:22px;height:22px;border-top:1.5px solid #2a3a4f;border-left:1.5px solid #2a3a4f;"></div>
+        <div style="position:absolute;top:10px;right:10px;width:22px;height:22px;border-top:1.5px solid #2a3a4f;border-right:1.5px solid #2a3a4f;"></div>
+        <div style="position:absolute;bottom:10px;left:10px;width:22px;height:22px;border-bottom:1.5px solid #2a3a4f;border-left:1.5px solid #2a3a4f;"></div>
+        <div style="position:absolute;bottom:10px;right:10px;width:22px;height:22px;border-bottom:1.5px solid #2a3a4f;border-right:1.5px solid #2a3a4f;"></div>
+
+        <!-- real WebGL globe mounts here (Three.js, imperatively managed --
+             see mountGlobe() in the script below). Sits behind the HUD
+             overlays below since it has no z-index and comes first in DOM
+             order. -->
+        <div id="chronos-globe-mount" style="position:absolute;inset:0;"></div>
+
+        <!-- top-left title -->
+        <div style="position:absolute;top:16px;left:22px;display:flex;flex-direction:column;gap:3px;z-index:3;pointer-events:none;">
+          <span style="font-size:10px;letter-spacing:2px;color:#c8d2e0;font-weight:600;">GLOBAL VIEW — ECI / TEME</span>
+          <span style="font-size:9px;letter-spacing:1.4px;color:#5f6b7d;">POSITION EPOCH {{ positionEpoch }} · DRAG TO ROTATE</span>
+          <span style="font-size:8px;letter-spacing:1px;color:#3d4756;">GL: {{ glRendererInfo }}</span>
+        </div>
+
+        <!-- top-right chips -->
+        <div style="position:absolute;top:14px;right:22px;display:flex;gap:7px;z-index:3;pointer-events:none;">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 9px;background:rgba(11,16,25,.75);border:1px solid #1c2837;border-radius:4px;font-size:10px;color:#c8d2e0;"><span style="width:7px;height:7px;border-radius:50%;background:#35c9d6;"></span>ACTIVE</div>
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 9px;background:rgba(11,16,25,.75);border:1px solid #1c2837;border-radius:4px;font-size:10px;color:#c8d2e0;"><span style="width:7px;height:7px;border-radius:50%;background:#7d8aa5;"></span>DEBRIS</div>
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 9px;background:rgba(11,16,25,.75);border:1px solid #1c2837;border-radius:4px;font-size:10px;color:#c8d2e0;"><span style="width:7px;height:7px;border-radius:50%;background:#b48ce0;"></span>R/B</div>
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 9px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.4);border-radius:4px;font-size:10px;color:#ff9d9d;"><span style="width:7px;height:7px;border-radius:50%;background:#ff4444;"></span>CONJUNCTION</div>
+        </div>
+
+        <!-- bottom-left readout -->
+        <div style="position:absolute;bottom:16px;left:22px;display:flex;gap:20px;z-index:3;pointer-events:none;">
+          <div style="display:flex;flex-direction:column;line-height:1;"><span style="font-size:8px;letter-spacing:1.4px;color:#4a5563;">RENDERED OBJ</span><span style="font-size:12px;color:#c8d2e0;margin-top:3px;">{{ glRenderedCount }} / {{ run.catalog }}</span></div>
+          <div style="display:flex;flex-direction:column;line-height:1;"><span style="font-size:8px;letter-spacing:1.4px;color:#4a5563;">FRAME</span><span style="font-size:12px;color:#c8d2e0;margin-top:3px;">{{ glFps }} FPS</span></div>
+          <div style="display:flex;flex-direction:column;line-height:1;"><span style="font-size:8px;letter-spacing:1.4px;color:#4a5563;">PROJECTION</span><span style="font-size:12px;color:#c8d2e0;margin-top:3px;">PERSPECTIVE</span></div>
+          <div style="display:flex;flex-direction:column;line-height:1;"><span style="font-size:8px;letter-spacing:1.4px;color:#4a5563;">HIGHLIGHTED</span><span style="font-size:12px;color:#c8d2e0;margin-top:3px;">{{ glHighlightCount }}</span></div>
+        </div>
+      </div>
+
+      <!-- scatter panel -->
+      <sc-if value="{{ showScatter }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:0 0 {{ scatterHeight }};background:#0d121b;border:1px solid #1a2432;border-radius:6px;padding:12px 14px 10px;display:flex;flex-direction:column;transition:flex-basis .25s ease;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:9px;letter-spacing:1.6px;color:#5f6b7d;text-transform:uppercase;font-weight:600;">ORBIT POPULATION · ALTITUDE × PERIOD</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:9px;letter-spacing:1px;color:#4a5563;">catalog_snapshot · n={{ dotCount }} sample</span>
+            <span onClick="{{ toggleScatter }}" style="cursor:pointer;font-size:9px;letter-spacing:1px;color:#8b97a8;padding:4px 8px;border:1px solid #24303f;border-radius:4px;background:#0b1019;" style-hover="color:#35c9d6;border-color:#35c9d6;">{{ scatterToggleLabel }}</span>
+          </div>
+        </div>
+        <div style="flex:1;position:relative;border-left:1px solid #1e2836;border-bottom:1px solid #1e2836;margin:2px 0 0 30px;">
+          <!-- y ticks -->
+          <span style="position:absolute;left:-28px;top:-4px;font-size:8px;color:#4a5563;">36k</span>
+          <span style="position:absolute;left:-28px;top:44%;font-size:8px;color:#4a5563;">2k</span>
+          <span style="position:absolute;left:-28px;bottom:-4px;font-size:8px;color:#4a5563;">380</span>
+          <span style="position:absolute;left:-30px;top:50%;transform:rotate(-90deg);transform-origin:left;font-size:8px;letter-spacing:1px;color:#3d4756;">ALT km</span>
+          <!-- bands -->
+          <div style="position:absolute;left:0;right:0;bottom:0;height:44%;background:rgba(53,201,214,.03);border-top:1px dashed rgba(53,201,214,.12);"></div>
+          <sc-for list="{{ scatterDots }}" as="d" hint-placeholder-count="60">
+            <div style="position:absolute;left:{{ d.left }};top:{{ d.top }};width:{{ d.r }};height:{{ d.r }};border-radius:50%;background:{{ d.color }};transform:translate(-50%,-50%);opacity:.85;"></div>
+          </sc-for>
+          <!-- x labels -->
+          <span style="position:absolute;bottom:-14px;left:0;font-size:8px;color:#4a5563;">88</span>
+          <span style="position:absolute;bottom:-14px;left:48%;font-size:8px;color:#4a5563;">300</span>
+          <span style="position:absolute;bottom:-14px;right:0;font-size:8px;color:#4a5563;">1436 min</span>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+
+    <!-- ---- RIGHT: CONJUNCTION FEED ---- -->
+    <div style="width:410px;flex:0 0 410px;display:flex;flex-direction:column;gap:10px;min-height:0;">
+
+      <!-- feed header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px;">
+        <span style="font-size:12px;letter-spacing:1.6px;color:#e6edf6;font-weight:600;">CONJUNCTION FEED</span>
+        <span style="font-size:10px;letter-spacing:1px;color:#5f6b7d;">TOP {{ listCap }} OF {{ total }} · RANKED BY MISS · 72H</span>
+      </div>
+
+      <!-- selected detail -->
+      <div style="background:#0d121b;border:1px solid #24303f;border-radius:6px;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:{{ sel.sevBg }};border-bottom:1px solid {{ sel.sevBorder }};">
+          <span style="display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:2px;color:{{ sel.sevColor }};"><span style="width:9px;height:9px;border-radius:50%;background:{{ sel.sevColor }};box-shadow:0 0 8px {{ sel.sevColor }};"></span>{{ sel.sevLabel }}</span>
+          <span style="font-size:11px;color:#8b97a8;letter-spacing:1px;">{{ sel.id }}</span>
+        </div>
+
+        <div style="padding:14px;">
+          <!-- objects -->
+          <div style="display:flex;align-items:stretch;gap:10px;">
+            <div style="flex:1;background:#0b1019;border:1px solid #1a2432;border-radius:5px;padding:10px 11px;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:{{ sel.aColor }};"></span><span style="font-size:9px;letter-spacing:1px;color:#5f6b7d;">PRIMARY · {{ sel.aType }}</span></div>
+              <div style="font-size:13px;color:#e6edf6;font-weight:600;line-height:1.25;">{{ sel.aName }}</div>
+              <div style="font-size:10px;color:#5f6b7d;margin-top:3px;">NORAD {{ sel.aNorad }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:#4a5563;font-size:15px;">×</div>
+            <div style="flex:1;background:#0b1019;border:1px solid #1a2432;border-radius:5px;padding:10px 11px;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:{{ sel.bColor }};"></span><span style="font-size:9px;letter-spacing:1px;color:#5f6b7d;">SECONDARY · {{ sel.bType }}</span></div>
+              <div style="font-size:13px;color:#e6edf6;font-weight:600;line-height:1.25;">{{ sel.bName }}</div>
+              <div style="font-size:10px;color:#5f6b7d;margin-top:3px;">NORAD {{ sel.bNorad }}</div>
+            </div>
+          </div>
+
+          <!-- big miss + tca -->
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <div style="flex:1;background:#0b1019;border:1px solid #1a2432;border-radius:5px;padding:11px 12px;">
+              <div style="font-size:9px;letter-spacing:1.4px;color:#5f6b7d;">MISS DISTANCE</div>
+              <div style="font-size:30px;font-weight:700;color:{{ sel.sevColor }};line-height:1;margin-top:6px;letter-spacing:-.5px;">{{ sel.missNum }}<span style="font-size:13px;color:#8b97a8;font-weight:500;"> m</span></div>
+              <div style="font-size:9px;letter-spacing:1px;color:#5f6b7d;margin-top:5px;">{{ sel.trendLabel }}</div>
+            </div>
+            <div style="flex:1;background:#0b1019;border:1px solid #1a2432;border-radius:5px;padding:11px 12px;">
+              <div style="font-size:9px;letter-spacing:1.4px;color:#5f6b7d;">TIME TO TCA</div>
+              <div style="font-size:22px;font-weight:700;color:#e6edf6;line-height:1;margin-top:9px;letter-spacing:.5px;">{{ sel.countdown }}</div>
+            </div>
+          </div>
+
+          <!-- metric row -->
+          <div style="display:flex;gap:0;margin-top:12px;border:1px solid #1a2432;border-radius:5px;overflow:hidden;">
+            <div style="flex:1;padding:9px 11px;"><div style="font-size:8px;letter-spacing:1.2px;color:#5f6b7d;">REL VELOCITY</div><div style="font-size:13px;color:#c8d2e0;margin-top:4px;font-weight:600;">{{ sel.rel }}</div></div>
+            <div style="width:1px;background:#1a2432;"></div>
+            <div style="flex:1;padding:9px 11px;"><div style="font-size:8px;letter-spacing:1.2px;color:#5f6b7d;">APPROACH ∠</div><div style="font-size:13px;color:#c8d2e0;margin-top:4px;font-weight:600;">{{ sel.ang }}</div></div>
+            <div style="width:1px;background:#1a2432;"></div>
+            <div style="flex:1;padding:9px 11px;"><div style="font-size:8px;letter-spacing:1.2px;color:#5f6b7d;">ALTITUDE</div><div style="font-size:13px;color:#c8d2e0;margin-top:4px;font-weight:600;">{{ sel.alt }}</div></div>
+            <div style="width:1px;background:#1a2432;"></div>
+            <div style="flex:1;padding:9px 11px;"><div style="font-size:8px;letter-spacing:1.2px;color:#5f6b7d;">TCA UTC</div><div style="font-size:13px;color:#c8d2e0;margin-top:4px;font-weight:600;">{{ sel.tcaAbs }}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ranked list -->
+      <div style="flex:1;background:#0d121b;border:1px solid #1a2432;border-radius:6px;overflow-y:auto;min-height:0;">
+        <sc-for list="{{ conjunctions }}" as="c" hint-placeholder-count="10">
+          <div onClick="{{ c.onClick }}" style="{{ c.rowStyle }}" style-hover="background:#131c28;">
+            <div style="width:3px;align-self:stretch;background:{{ c.sevColor }};border-radius:2px;"></div>
+            <div style="width:22px;text-align:right;font-size:11px;color:#4a5563;font-weight:600;">{{ c.rank }}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#e6edf6;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ c.aColor }};flex:0 0 auto;"></span>{{ c.aName }}
+                <span style="color:#4a5563;font-weight:400;">×</span>
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ c.bColor }};flex:0 0 auto;"></span>{{ c.bName }}
+              </div>
+              <div style="font-size:10px;color:#5f6b7d;margin-top:3px;">{{ c.id }} · {{ c.reg }} · {{ c.rel }} <span style="letter-spacing:.5px;">{{ c.trendLabel }}</span></div>
+            </div>
+            <div style="text-align:right;flex:0 0 auto;">
+              <div style="font-size:13px;font-weight:700;color:{{ c.sevColor }};">{{ c.miss }}</div>
+              <div style="font-size:10px;color:#8b97a8;margin-top:3px;">{{ c.countdown }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;orbitGlow&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;},&quot;showScatter&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.t0 = Date.now();
+    this.API_BASE = (typeof window!=='undefined' && window.CHRONOS_API_BASE) || 'http://localhost:8787';
+    this.SEV_ORDER = {critical:0,high:1,medium:2,low:3};
+    this.state = {
+      now: this.t0, selectedId: null,
+      apiRun: null, apiConjunctions: null, apiCatalogSnapshot: null,
+      loading: true, error: null,
+    };
+  }
+  componentDidMount(){
+    this._glFrames = 0;
+    this.timer = setInterval(()=>{
+      this.setState({now:Date.now(), glFps:String(this._glFrames)});
+      this._glFrames = 0;
+    },1000);
+    this.posTimer = setInterval(()=>this.refreshPositions(), 5000);
+    this.loadData();
+  }
+  componentWillUnmount(){
+    clearInterval(this.timer);
+    clearInterval(this.posTimer);
+    this.disposeGlobe();
+  }
+
+  async loadData(){
+    try{
+      const [conjRes, snapRes] = await Promise.all([
+        fetch(this.API_BASE+'/conjunctions'),
+        fetch(this.API_BASE+'/catalog-snapshot'),
+      ]);
+      if(!conjRes.ok) throw new Error('GET /conjunctions -> HTTP '+conjRes.status);
+      if(!snapRes.ok) throw new Error('GET /catalog-snapshot -> HTTP '+snapRes.status);
+      const conjBody = await conjRes.json();
+      const snapBody = await snapRes.json();
+      const conjunctions = [...conjBody.conjunctions].sort((a,b)=>a.miss_distance_m-b.miss_distance_m);
+      this.setState({
+        apiRun: conjBody.screening_run,
+        apiConjunctions: conjunctions,
+        apiCatalogSnapshot: snapBody.catalog_snapshot,
+        apiPositionEpoch: snapBody.position_epoch,
+        selectedId: conjunctions.length ? conjunctions[0].id : null,
+        loading: false, error: null,
+      });
+      await this.ensureGlobeMounted();
+      this.updateGlobePositions(snapBody.catalog_snapshot);
+      this.updateGlobeConjunctions(conjunctions);
+    }catch(e){
+      this.setState({loading:false, error:(e&&e.message)||String(e)});
+    }
+  }
+
+  async refreshPositions(){
+    // Live orbital motion: re-propagate + refetch every 5s, without
+    // re-fetching the (much larger, unchanging-per-run) conjunction list.
+    if(!this.state.apiRun) return;
+    try{
+      const res = await fetch(this.API_BASE+'/catalog-snapshot');
+      if(!res.ok) return;
+      const body = await res.json();
+      this.setState({apiCatalogSnapshot: body.catalog_snapshot, apiPositionEpoch: body.position_epoch});
+      await this.ensureGlobeMounted();
+      this.updateGlobePositions(body.catalog_snapshot);
+      this.updateGlobeConjunctions(this.state.apiConjunctions||[]);
+    }catch(e){ /* transient fetch failure -- next 5s tick will retry */ }
+  }
+
+  // --- real WebGL globe (Three.js) -- see docs/decisions.md, "Real orbit
+  // renderer" -- positions come from api/schema.py's live SGP4 propagation
+  // (GET /catalog-snapshot with position_km), not placeholder coordinates ---
+
+  async ensureGlobeMounted(){
+    if(this.globe) return;
+    if(this._mountingGlobe) { await this._mountingGlobe; return; }
+    this._mountingGlobe = this.mountGlobe();
+    await this._mountingGlobe;
+  }
+
+  async mountGlobe(){
+    const mount = document.getElementById('chronos-globe-mount');
+    if(!mount) return;
+    let THREE;
+    try{
+      THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
+    }catch(e){
+      console.error('[chronos] failed to load three.js from CDN', e);
+      return;
+    }
+    if(this.globe) return; // guard against a second concurrent mount
+    if(mount.querySelector('canvas')){
+      // Belt-and-suspenders: if a canvas is already in there (e.g. a
+      // remount we didn't otherwise catch), don't add a second render
+      // loop on top of it -- two overlapping full-scene renders would
+      // roughly halve FPS by itself, on top of whatever else is slow.
+      console.warn('[chronos] globe mount already has a canvas -- skipping duplicate mount');
+      return;
+    }
+
+    const width = mount.clientWidth||600, height = mount.clientHeight||400;
+    const SCALE = 1/500; // km -> scene units (Earth radius ~12.76 units)
+    const RE = 6378.137*SCALE;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, width/Math.max(height,1), 1, 3000);
+    // The real bottleneck turned out to be the conjunction list re-rendering
+    // on a timer (see LIST_RENDER_CAP below), not this scene -- with that
+    // fixed there's real headroom, so antialiasing and a proper HiDPI pixel
+    // ratio are back on.
+    const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, powerPreference:'high-performance'});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+    renderer.setSize(width, height);
+    renderer.domElement.style.cssText = 'width:100%;height:100%;display:block;cursor:grab;';
+    mount.appendChild(renderer.domElement);
+
+    const rootGroup = new THREE.Group();
+    scene.add(rootGroup);
+
+    const earth = new THREE.Mesh(
+      new THREE.SphereGeometry(RE, 32, 24),
+      new THREE.MeshPhongMaterial({color:0x0a1626, emissive:0x081018, shininess:10, transparent:true, opacity:.94}),
+    );
+    rootGroup.add(earth);
+
+    const showWire = this.props.orbitGlow ?? true;
+    const wire = new THREE.Mesh(
+      new THREE.SphereGeometry(RE*1.003, 16, 12),
+      new THREE.MeshBasicMaterial({color:0x35c9d6, wireframe:true, transparent:true, opacity:.14}),
+    );
+    wire.visible = showWire;
+    rootGroup.add(wire);
+
+    // Atmosphere glow: a camera-facing sprite with a radial-gradient
+    // texture behind Earth, not a fresnel shader -- same soft-glow result,
+    // far more reliable to get right without ever seeing it render.
+    const glowTexture = this._makeGlowTexture(THREE);
+    const atmosphere = new THREE.Sprite(new THREE.SpriteMaterial({
+      map:glowTexture, color:0x35c9d6, transparent:true, opacity:.55,
+      blending:THREE.AdditiveBlending, depthWrite:false,
+    }));
+    atmosphere.scale.set(RE*3.1, RE*3.1, 1);
+    rootGroup.add(atmosphere);
+
+    scene.add(new THREE.AmbientLight(0x8899aa, 1.1));
+    const dirLight = new THREE.DirectionalLight(0x6fe3ea, .7);
+    dirLight.position.set(60, 90, 70);
+    scene.add(dirLight);
+    const rimLight = new THREE.DirectionalLight(0xb48ce0, .35);
+    rimLight.position.set(-80, -40, -60);
+    scene.add(rimLight);
+
+    // Starfield: fixed backdrop (added to `scene`, not `rootGroup`, so it
+    // doesn't spin with the globe/points -- stars are "at infinity").
+    const starGeom = new THREE.BufferGeometry();
+    const STAR_COUNT = 1600;
+    const starPos = new Float32Array(STAR_COUNT*3);
+    for(let i=0;i<STAR_COUNT;i++){
+      const r = 700 + Math.random()*900;
+      const theta = Math.random()*Math.PI*2, phi = Math.acos(2*Math.random()-1);
+      starPos[i*3] = r*Math.sin(phi)*Math.cos(theta);
+      starPos[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
+      starPos[i*3+2] = r*Math.cos(phi);
+    }
+    starGeom.setAttribute('position', new THREE.BufferAttribute(starPos,3));
+    const stars = new THREE.Points(starGeom, new THREE.PointsMaterial({
+      size:1.4, color:0xaeb8c8, map:this._makeDotTexture(THREE), alphaTest:0.4, sizeAttenuation:true,
+    }));
+    scene.add(stars);
+
+    const dotTexture = this._makeDotTexture(THREE);
+
+    // opaque (alphaTest discard, not alpha-blended): most of the catalog is
+    // LEO, which clusters into a small angular region from any reasonable
+    // camera distance -- tens of thousands of *blended* soft sprites
+    // overlapping in that small area is real, unavoidable overdraw cost
+    // regardless of GPU. alphaTest still gives a soft-edged circle (the
+    // gradient texture), it just doesn't blend/sort, which is what's
+    // actually expensive here.
+    const pointsGeom = new THREE.BufferGeometry();
+    const points = new THREE.Points(pointsGeom, new THREE.PointsMaterial({
+      size:1.6, vertexColors:true, sizeAttenuation:true,
+      map:dotTexture, alphaTest:0.4, transparent:false, depthWrite:true,
+    }));
+    rootGroup.add(points);
+
+    // Highlights: ONE LineSegments + ONE Points object for *all* highlighted
+    // conjunctions, not a Mesh/Line pair per conjunction. The first version
+    // of this created up to 240 individual draw calls (80 conjunctions x
+    // [1 line + 2 marker spheres]) rebuilt every 5s -- that was the actual
+    // 17fps cause, not the 32k-point cloud (a single draw call regardless
+    // of point count). Two draw calls total now, however many are highlighted.
+    const highlightLines = new THREE.LineSegments(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({vertexColors:true, transparent:true, opacity:.85}),
+    );
+    const highlightPoints = new THREE.Points(
+      new THREE.BufferGeometry(),
+      new THREE.PointsMaterial({size:3.4, vertexColors:true, map:dotTexture, alphaTest:0.4, transparent:false, depthWrite:true}),
+    );
+    rootGroup.add(highlightLines);
+    rootGroup.add(highlightPoints);
+
+    this.globe = {
+      THREE, scene, camera, renderer, rootGroup, earth, wire, points, pointsGeom, mount,
+      highlightLines, highlightPoints, SCALE,
+      rotY: 0.5, rotX: -0.3, dragging:false, lastX:0, lastY:0, dist: 145,
+    };
+    this._posIndex = {};
+
+    // Diagnostic: is this actually hardware-accelerated? A single-digit
+    // FPS on a scene this simple, after fixing draw calls/overdraw/canvas
+    // sizing, points at software rendering (no real GPU context) as the
+    // remaining explanation -- surfacing it directly rather than guessing
+    // at more scene optimizations.
+    try{
+      const gl = renderer.getContext();
+      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      const rendererStr = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+      console.log('[chronos] WebGL renderer:', rendererStr);
+      this.setState({glRendererInfo: String(rendererStr)});
+    }catch(e){
+      console.warn('[chronos] could not query WebGL renderer info', e);
+    }
+
+    this._bindGlobeInteraction();
+    this._observeGlobeResize();
+    this._animateGlobe();
+  }
+
+  _makeDotTexture(THREE){
+    const c = document.createElement('canvas');
+    c.width = c.height = 32;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(16,16,0,16,16,16);
+    g.addColorStop(0,'rgba(255,255,255,1)');
+    g.addColorStop(0.55,'rgba(255,255,255,.65)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,32,32);
+    return new THREE.CanvasTexture(c);
+  }
+
+  _makeGlowTexture(THREE){
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,255,255,.9)');
+    g.addColorStop(0.35,'rgba(255,255,255,.35)');
+    g.addColorStop(0.7,'rgba(255,255,255,.08)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,128,128);
+    return new THREE.CanvasTexture(c);
+  }
+
+  _bindGlobeInteraction(){
+    const g = this.globe;
+    const el = g.renderer.domElement;
+    const onDown = (e)=>{ g.dragging=true; g.lastX=e.clientX; g.lastY=e.clientY; el.style.cursor='grabbing'; };
+    const onMove = (e)=>{
+      if(!g.dragging) return;
+      g.rotY += (e.clientX-g.lastX)*0.005;
+      g.rotX = Math.max(-1.3, Math.min(1.3, g.rotX + (e.clientY-g.lastY)*0.005));
+      g.lastX=e.clientX; g.lastY=e.clientY;
+    };
+    const onUp = ()=>{ g.dragging=false; el.style.cursor='grab'; };
+    const onWheel = (e)=>{ e.preventDefault(); g.dist = Math.max(35, Math.min(500, g.dist + e.deltaY*0.15)); };
+    el.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    el.addEventListener('wheel', onWheel, {passive:false});
+    g._cleanup = ()=>{
+      el.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      el.removeEventListener('wheel', onWheel);
+    };
+  }
+
+  _resizeGlobeToContainer(){
+    const g = this.globe;
+    if(!g) return;
+    const w = g.mount.clientWidth||1, h = g.mount.clientHeight||1;
+    const pr = Math.min(window.devicePixelRatio||1, 2);
+    // Explicit, not just renderer.setSize's default: force the actual
+    // drawing-buffer resolution to match the container every time this
+    // runs, not just on the (possibly late/incorrect) initial read at
+    // mount time -- a stale small internal resolution stretched to fill
+    // the panel via CSS is what produced the giant, blurry, overlapping
+    // points (and the fill-rate/overdraw cost that came with them).
+    g.renderer.setPixelRatio(pr);
+    g.renderer.setSize(w, h, true);
+    g.camera.aspect = w/Math.max(h,1);
+    g.camera.updateProjectionMatrix();
+  }
+
+  _observeGlobeResize(){
+    const g = this.globe;
+    // Force a correct size immediately, and again next frame (layout can
+    // still be settling right after mount), not just on future changes.
+    this._resizeGlobeToContainer();
+    requestAnimationFrame(()=>this._resizeGlobeToContainer());
+    if(typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(()=>this._resizeGlobeToContainer());
+    ro.observe(g.mount);
+    g._resizeObserver = ro;
+  }
+
+  _animateGlobe(){
+    const g = this.globe;
+    const t0 = performance.now();
+    const tick = ()=>{
+      g._raf = requestAnimationFrame(tick);
+      if(!g.dragging) g.rotY += 0.0011; // slow auto-spin, pauses while dragging
+      g.rootGroup.rotation.y = g.rotY;
+      g.rootGroup.rotation.x = g.rotX;
+      g.camera.position.set(0, g.dist*0.22, g.dist);
+      g.camera.lookAt(0,0,0);
+      // Gentle pulse on the conjunction highlight markers so real events
+      // draw the eye, echoing the mockup's original pulsing-red-dot idea
+      // (`cpulse` CSS keyframe) but on the actual highlighted positions.
+      const t = (performance.now()-t0)/1000;
+      g.highlightPoints.material.size = 3.4 + Math.sin(t*3.2)*1.1;
+      g.renderer.render(g.scene, g.camera);
+      this._glFrames = (this._glFrames||0)+1;
+    };
+    tick();
+  }
+
+  updateGlobePositions(catalogSnapshot){
+    const g = this.globe;
+    if(!g || !catalogSnapshot) return;
+    const THREE = g.THREE, s = g.SCALE;
+    const withPos = catalogSnapshot.filter(o=>o.position_km);
+    const colorOf = t => t==='active' ? [0.208,0.788,0.839] : t==='rocket' ? [0.706,0.549,0.878] : [0.490,0.541,0.647];
+
+    // Full index (every object with a position) -- conjunction highlight
+    // lookups need to resolve any object, even one that doesn't land in
+    // the rendered sample below.
+    const idx = {};
+    withPos.forEach(o=>{
+      // TEME frame: x,y in equatorial plane, z toward the pole -- map z to
+      // Three.js' up axis (Y) for a conventional "north up" view.
+      idx[o.norad_id] = [o.position_km[0]*s, o.position_km[2]*s, o.position_km[1]*s];
+    });
+    this._posIndex = idx;
+
+    // Rendered sample, capped: most of the real catalog is LEO, which
+    // clusters into a small angular region from any reasonable camera
+    // distance. Now that points render opaque (alphaTest, not blended --
+    // see mountGlobe) count itself is cheap; this cap is about visual
+    // density reading as "populated" rather than "solid fog," not GPU
+    // budget. Stride-sampled (not random) so the same objects render on
+    // every refresh.
+    const RENDER_BUDGET = 20000;
+    const stride = Math.max(1, Math.floor(withPos.length/RENDER_BUDGET));
+    const sample = [];
+    for(let i=0;i<withPos.length;i+=stride) sample.push(withPos[i]);
+
+    const n = sample.length;
+    const positions = new Float32Array(n*3);
+    const colors = new Float32Array(n*3);
+    for(let i=0;i<n;i++){
+      const p = idx[sample[i].norad_id];
+      positions[i*3]=p[0]; positions[i*3+1]=p[1]; positions[i*3+2]=p[2];
+      const c = colorOf(sample[i].type);
+      colors[i*3]=c[0]; colors[i*3+1]=c[1]; colors[i*3+2]=c[2];
+    }
+    g.pointsGeom.setAttribute('position', new THREE.BufferAttribute(positions,3));
+    g.pointsGeom.setAttribute('color', new THREE.BufferAttribute(colors,3));
+    g.pointsGeom.computeBoundingSphere();
+    this.setState({glRenderedCount:n.toLocaleString()});
+  }
+
+  updateGlobeConjunctions(conjunctions){
+    const g = this.globe;
+    if(!g) return;
+    const THREE = g.THREE;
+    const sevColor = k => ({critical:[1,0.267,0.267],high:[1,0.588,0.2],medium:[1,0.812,0.227],low:[0.275,0.788,0.478]}[k]||[0.545,0.592,0.659]);
+    const top = [...(conjunctions||[])].sort((a,b)=>a.miss_distance_m-b.miss_distance_m).slice(0,80);
+
+    const linePos=[], lineCol=[], ptPos=[], ptCol=[];
+    top.forEach(c=>{
+      const pa = this._posIndex[c.object_a.norad_id];
+      const pb = this._posIndex[c.object_b.norad_id];
+      if(!pa || !pb) return;
+      const col = sevColor(c.severity);
+      linePos.push(pa[0],pa[1],pa[2], pb[0],pb[1],pb[2]);
+      lineCol.push(col[0],col[1],col[2], col[0],col[1],col[2]);
+      ptPos.push(pa[0],pa[1],pa[2], pb[0],pb[1],pb[2]);
+      ptCol.push(col[0],col[1],col[2], col[0],col[1],col[2]);
+    });
+
+    g.highlightLines.geometry.dispose();
+    g.highlightLines.geometry = new THREE.BufferGeometry();
+    g.highlightLines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(linePos,3));
+    g.highlightLines.geometry.setAttribute('color', new THREE.Float32BufferAttribute(lineCol,3));
+
+    g.highlightPoints.geometry.dispose();
+    g.highlightPoints.geometry = new THREE.BufferGeometry();
+    g.highlightPoints.geometry.setAttribute('position', new THREE.Float32BufferAttribute(ptPos,3));
+    g.highlightPoints.geometry.setAttribute('color', new THREE.Float32BufferAttribute(ptCol,3));
+
+    this.setState({glHighlightCount:String(linePos.length/6)});
+  }
+
+  disposeGlobe(){
+    const g = this.globe;
+    if(!g) return;
+    if(g._raf) cancelAnimationFrame(g._raf);
+    if(g._cleanup) g._cleanup();
+    if(g._resizeObserver) g._resizeObserver.disconnect();
+    g.pointsGeom.dispose();
+    g.highlightLines.geometry.dispose();
+    g.highlightPoints.geometry.dispose();
+    g.renderer.dispose();
+    if(g.renderer.domElement && g.renderer.domElement.parentNode){
+      g.renderer.domElement.parentNode.removeChild(g.renderer.domElement);
+    }
+    this.globe = null;
+  }
+
+  sevColor(k){ return {critical:'#ff4444',high:'#ff9633',medium:'#ffcf3a',low:'#46c97a'}[k]||'#8b97a8'; }
+  typeColor(t){ return {active:'#35c9d6',debris:'#7d8aa5',rocket:'#b48ce0'}[t]||'#8b97a8'; }
+  trendGlyph(t){ return {closing:'▼ CLOSING',opening:'▲ OPENING',stable:'● STABLE',new:'✦ NEW'}[t]||''; }
+  pad(n){ return String(n).padStart(2,'0'); }
+  fmtUTC(ms){ const d=new Date(ms); return d.getUTCFullYear()+'-'+this.pad(d.getUTCMonth()+1)+'-'+this.pad(d.getUTCDate())+' '+this.pad(d.getUTCHours())+':'+this.pad(d.getUTCMinutes())+':'+this.pad(d.getUTCSeconds())+'Z'; }
+  fmtHM(ms){ const d=new Date(ms); return this.pad(d.getUTCHours())+':'+this.pad(d.getUTCMinutes())+'Z'; }
+  countdown(tcaMs, now){
+    let s = Math.floor((tcaMs-now)/1000);
+    const past = s<=0;
+    if(past) s = -s;
+    const d=Math.floor(s/86400); s%=86400;
+    const h=Math.floor(s/3600); s%=3600;
+    const m=Math.floor(s/60); const sec=s%60;
+    const body = d>0 ? d+'d '+this.pad(h)+'h '+this.pad(m)+'m' : this.pad(h)+':'+this.pad(m)+':'+this.pad(sec);
+    return past ? 'TCA -'+body+' AGO' : 'T-'+body;
+  }
+
+  renderVals(){
+    const now = this.state.now;
+    const showScatter = this.props.showScatter ?? true;
+    const { apiRun, apiConjunctions, apiCatalogSnapshot, apiPositionEpoch, loading, error, glFps, glHighlightCount, glRendererInfo, glRenderedCount } = this.state;
+
+    if(!apiConjunctions || !apiCatalogSnapshot || !apiRun){
+      // Still loading (or the local dev server at this.API_BASE isn't
+      // running -- see dev/local_server.py) -- every templated field needs
+      // a safe placeholder so sc-for/sc-if don't choke on nulls.
+      const emptySel = {
+        id:'—', sevLabel:'—', sevColor:'#5f6b7d', sevBg:'rgba(95,107,125,.09)', sevBorder:'rgba(95,107,125,.35)',
+        aName: error ? 'ERROR' : 'LOADING…', aNorad:'—', aType:'—', aColor:'#5f6b7d',
+        bName: error ? (error) : 'connecting to '+this.API_BASE, bNorad:'—', bType:'—', bColor:'#5f6b7d',
+        missNum:'—', countdown:'—', rel:'—', ang:'—', alt:'—', tcaAbs:'—', trendLabel:'',
+      };
+      return {
+        run:{ id:'—', catalog:'—', pairs:'—', window:'—', duration:'—', started:'—', candidates:'—' },
+        clock:this.fmtUTC(now), nextRun:'—', total:'0',
+        conjunctions:[], sel:emptySel,
+        severityBars:[], regimeRows:[], scatterDots:[], typeCounts:{active:'—',debris:'—',rocket:'—'},
+        trendCounts:{new:'—',closing:'—',opening:'—',stable:'—'},
+        dotCount:0, showScatter,
+        scatterExpanded:false, scatterHeight:'176px', scatterToggleLabel:'⤢ EXPAND',
+        toggleScatter:()=>this.setState({scatterExpanded:!this.state.scatterExpanded}),
+        positionEpoch:'—', glFps: glFps||'0', glHighlightCount: glHighlightCount||'0',
+        glRendererInfo: glRendererInfo||'—', glRenderedCount: glRenderedCount||'0', listCap:'0',
+      };
+    }
+
+    // Root cause of the frame-rate problem, confirmed: `sc-for` mounts one
+    // real DOM node per array item with no virtualization and keys by
+    // array index (see support.js:walkFor), and this whole component
+    // re-renders every 1s (clock) and 5s (position refresh) -- rebuilding
+    // and re-diffing 17,000+ fresh row objects on a timer was blocking the
+    // main thread long enough to starve the WebGL rAF loop entirely; the
+    // globe's own render cost was never the bottleneck. This runtime has
+    // no memoization primitive to reach for (no React.memo/useMemo
+    // equivalent exposed), so the fix is capping how many rows actually
+    // get mounted -- `total` below still reflects the real full count.
+    const LIST_RENDER_CAP = 250;
+    const list = apiConjunctions.slice(0, LIST_RENDER_CAP).map((c,i)=>{
+      const k = c.severity;
+      const col = this.sevColor(k);
+      const tcaMs = new Date(c.tca).getTime();
+      const isSel = c.id===this.state.selectedId;
+      return {
+        id:c.id, k, tcaMs,
+        rank:this.pad(i+1),
+        sevColor:col,
+        aName:c.object_a.name, aNorad:c.object_a.norad_id, aType:c.object_a.type.toUpperCase(), aColor:this.typeColor(c.object_a.type),
+        bName:c.object_b.name, bNorad:c.object_b.norad_id, bType:c.object_b.type.toUpperCase(), bColor:this.typeColor(c.object_b.type),
+        miss:c.miss_distance_m.toFixed(1)+' m', missNum:c.miss_distance_m.toFixed(1),
+        rel:c.relative_velocity_kms.toFixed(2)+' km/s', ang:c.approach_angle_deg.toFixed(0)+'°',
+        alt:(c.altitude_km>=1000?Math.round(c.altitude_km).toLocaleString():c.altitude_km.toFixed(0))+' km',
+        reg:c.regime, trend:c.trend, trendLabel:this.trendGlyph(c.trend),
+        countdown:this.countdown(tcaMs, now),
+        tcaAbs:this.fmtHM(tcaMs),
+        onClick:()=>this.setState({selectedId:c.id}),
+        rowStyle:'display:flex;align-items:center;gap:11px;padding:11px 13px;border-bottom:1px solid #131a26;cursor:pointer;'+(isSel?'background:#141f2c;box-shadow:inset 3px 0 0 '+col+';':''),
+      };
+    });
+
+    const selBase = list.find(c=>c.id===this.state.selectedId) || list[0];
+    const sel = !selBase ? {
+      id:'—', sevLabel:'NONE', sevColor:'#46c97a', sevBg:'rgba(70,201,122,.09)', sevBorder:'rgba(70,201,122,.35)',
+      aName:'NO CONJUNCTIONS', aNorad:'—', aType:'—', aColor:'#5f6b7d',
+      bName:'IN THIS WINDOW', bNorad:'—', bType:'—', bColor:'#5f6b7d',
+      missNum:'—', countdown:'—', rel:'—', ang:'—', alt:'—', tcaAbs:'—', trendLabel:'',
+    } : {
+      id:selBase.id, sevLabel:selBase.k.toUpperCase(), sevColor:selBase.sevColor,
+      sevBg:'rgba('+({critical:'255,68,68',high:'255,150,51',medium:'255,207,58',low:'70,201,122'}[selBase.k])+',.09)',
+      sevBorder:'rgba('+({critical:'255,68,68',high:'255,150,51',medium:'255,207,58',low:'70,201,122'}[selBase.k])+',.35)',
+      aName:selBase.aName, aNorad:selBase.aNorad, aType:selBase.aType, aColor:selBase.aColor,
+      bName:selBase.bName, bNorad:selBase.bNorad, bType:selBase.bType, bColor:selBase.bColor,
+      missNum:selBase.missNum, countdown:selBase.countdown, rel:selBase.rel,
+      ang:selBase.ang, alt:selBase.alt, tcaAbs:selBase.tcaAbs, trendLabel:selBase.trendLabel,
+    };
+
+    // severity bars (bands/thresholds are display text mirroring screen/severity.py)
+    const counts = {critical:0,high:0,medium:0,low:0};
+    apiConjunctions.forEach(c=>{ if(counts[c.severity]!=null) counts[c.severity]++; });
+    const maxc = Math.max(...Object.values(counts),1);
+    const severityBars = [
+      {label:'CRITICAL',key:'critical',thresh:'<200m'},
+      {label:'HIGH',key:'high',thresh:'<500m'},
+      {label:'MEDIUM',key:'medium',thresh:'<1km'},
+      {label:'LOW',key:'low',thresh:'<5km'},
+    ].map(s=>({label:s.label,thresh:s.thresh,count:counts[s.key],color:this.sevColor(s.key),pct:(counts[s.key]/maxc*100)+'%'}));
+
+    // run-over-run trend summary (the differentiator from docs/validation.md
+    // Phase 0 -- computed server-side per conjunction already, just never
+    // aggregated/surfaced anywhere in the UI until now)
+    const trendCounts = {new:0, closing:0, opening:0, stable:0};
+    apiConjunctions.forEach(c=>{ if(trendCounts[c.trend]!=null) trendCounts[c.trend]++; });
+    const trendCountsFmt = {
+      new:trendCounts.new.toLocaleString(), closing:trendCounts.closing.toLocaleString(),
+      opening:trendCounts.opening.toLocaleString(), stable:trendCounts.stable.toLocaleString(),
+    };
+
+    // regime + object class counts, both from the real catalog snapshot
+    const regCounts = {LEO:0,MEO:0,GEO:0,HEO:0};
+    const typeCounts = {active:0,debris:0,rocket:0};
+    apiCatalogSnapshot.forEach(o=>{
+      if(regCounts[o.regime]!=null) regCounts[o.regime]++;
+      if(typeCounts[o.type]!=null) typeCounts[o.type]++;
+    });
+    const rmax = Math.max(...Object.values(regCounts),1);
+    const regimeRows = ['LEO','MEO','GEO','HEO'].map(r=>({label:r,count:regCounts[r].toLocaleString(),pct:(regCounts[r]/rmax*100)+'%'}));
+    const typeCountsFmt = {active:typeCounts.active.toLocaleString(),debris:typeCounts.debris.toLocaleString(),rocket:typeCounts.rocket.toLocaleString()};
+
+    // scatter: stride-sample the real catalog down to a renderable dot count.
+    // Expanded mode gets both more vertical room and a denser sample --
+    // more screen space to legibly show more of the real distribution.
+    const scatterExpanded = !!this.state.scatterExpanded;
+    const lx0=Math.log(88), lx1=Math.log(1440), ly0=Math.log(380), ly1=Math.log(36000);
+    const cl = (v)=>Math.max(1,Math.min(99,v));
+    const SCATTER_TARGET = scatterExpanded ? 1400 : 260;
+    const stride = Math.max(1, Math.floor(apiCatalogSnapshot.length/SCATTER_TARGET));
+    const scatterDots = [];
+    for(let i=0;i<apiCatalogSnapshot.length;i+=stride){
+      const o = apiCatalogSnapshot[i];
+      if(o.period_min<=0 || o.altitude_km<=0) continue;
+      const left = (Math.log(o.period_min)-lx0)/(lx1-lx0)*100;
+      const top = (1-(Math.log(o.altitude_km+6378)-ly0)/(ly1-ly0))*100;
+      scatterDots.push({ left:cl(left)+'%', top:cl(top)+'%', color:this.typeColor(o.type), r:(o.type==='active'?4:3)+'px' });
+    }
+
+    const startedMs = new Date(apiRun.started_at).getTime();
+    const nextRunMs = startedMs + 2*3600000; // matches infra/template.yaml's default 2h EventBridge schedule
+
+    return {
+      run:{
+        id: apiRun.run_id, catalog: apiRun.catalog_size.toLocaleString(),
+        pairs: apiRun.pairs_screened.toLocaleString(),
+        window: apiRun.screening_window_hours+' H',
+        duration: (apiRun.duration_ms/1000).toFixed(1)+' s',
+        started: this.fmtHM(startedMs),
+        candidates: apiRun.candidates_screened.toLocaleString(),
+      },
+      clock:this.fmtUTC(now),
+      nextRun:this.countdown(nextRunMs, now),
+      total:String(apiConjunctions.length),
+      conjunctions:list,
+      sel,
+      severityBars, regimeRows, scatterDots, typeCounts:typeCountsFmt, trendCounts:trendCountsFmt,
+      dotCount:scatterDots.length,
+      showScatter, scatterExpanded, scatterHeight: scatterExpanded ? '480px' : '176px',
+      scatterToggleLabel: scatterExpanded ? '⤡ COLLAPSE' : '⤢ EXPAND',
+      toggleScatter: ()=>this.setState({scatterExpanded:!this.state.scatterExpanded}),
+      positionEpoch: apiPositionEpoch ? this.fmtHM(new Date(apiPositionEpoch).getTime()) : '—',
+      glFps: glFps||'0', glHighlightCount: glHighlightCount||'0',
+      glRendererInfo: glRendererInfo||'detecting…', glRenderedCount: glRenderedCount||'0',
+      listCap:String(Math.min(LIST_RENDER_CAP, apiConjunctions.length)),
+    };
+  }
+}
+</script>
+</body>
+</html>
